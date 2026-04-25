@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SupportDesk Pro — Ticket Management</title>
+
+  <!-- Google Fonts: Syne (headings) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">SupportDesk</div>
+        <div class="brand-tag">Pro Edition</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="dashboard" onclick="switchView('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" data-view="tickets" onclick="switchView('tickets',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        All Tickets
+        <span class="nav-badge" id="totalBadge">0</span>
+      </a>
+      <a href="#" class="nav-item" data-view="new" onclick="switchView('new',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New Ticket
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="agent-info">
+        <div class="agent-avatar">AG</div>
+        <div>
+          <div class="agent-name">Agent Console</div>
+          <div class="agent-status"><span class="dot"></span> Online</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="page-title" id="pageTitle">Dashboard Overview</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="currentTime"></div>
+        <button class="btn-primary" onclick="switchView('new', document.querySelector('[data-view=new]'))">
+          + New Ticket
+        </button>
+      </div>
+    </header>
+
+    <!-- ===================== VIEW: DASHBOARD ===================== -->
+    <section class="view active" id="view-dashboard">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-total">
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpiTotal">0</div>
+            <div class="kpi-label">Total Tickets</div>
+          </div>
+          <div class="kpi-trend" id="kpiTotalTrend">—</div>
+        </div>
+        <div class="kpi-card kpi-resolved">
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpiResolved">0</div>
+            <div class="kpi-label">Resolved</div>
+          </div>
+          <div class="kpi-trend" id="kpiResolvedPct">0%</div>
+        </div>
+        <div class="kpi-card kpi-pending">
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpiPending">0</div>
+            <div class="kpi-label">Pending</div>
+          </div>
+          <div class="kpi-trend" id="kpiPendingPct">0%</div>
+        </div>
+        <div class="kpi-card kpi-high">
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpiHigh">0</div>
+            <div class="kpi-label">High Priority</div>
+          </div>
+          <div class="kpi-trend" id="kpiDelayed">0 delayed</div>
+        </div>
+        <div class="kpi-card kpi-rating">
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="kpiRating">—</div>
+            <div class="kpi-label">Avg Satisfaction</div>
+          </div>
+          <div class="kpi-trend" id="kpiRatingCount">0 ratings</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Tickets by Status</h3>
+            <span class="chart-subtitle">Real-time distribution</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Tickets by Issue Type</h3>
+            <span class="chart-subtitle">Category breakdown</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="typeChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent tickets mini-table -->
+      <div class="table-card">
+        <div class="table-header-row">
+          <h3>Recent Activity</h3>
+          <button class="btn-ghost" onclick="switchView('tickets', document.querySelector('[data-view=tickets]'))">View All →</button>
+        </div>
+        <table class="data-table" id="recentTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>Customer</th><th>Issue</th><th>Priority</th><th>Status</th><th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="recentTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== VIEW: ALL TICKETS ===================== -->
+    <section class="view" id="view-tickets">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filterStatus" onchange="renderTickets()">
+            <option value="">All Statuses</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Delayed">Delayed</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Priority</label>
+          <select id="filterPriority" onchange="renderTickets()">
+            <option value="">All Priorities</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Issue Type</label>
+          <select id="filterType" onchange="renderTickets()">
+            <option value="">All Types</option>
+            <option value="Billing">Billing</option>
+            <option value="Technical">Technical</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        <div class="filter-group search-group">
+          <label>Search</label>
+          <input type="text" id="filterSearch" placeholder="Customer name…" oninput="renderTickets()" />
+        </div>
+        <button class="btn-ghost" onclick="clearFilters()">Clear Filters</button>
+      </div>
+
+      <!-- Ticket Cards Container -->
+      <div class="tickets-grid" id="ticketsGrid"></div>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.172 14.828a4 4 0 1 1 5.656-5.656m-5.656 5.656L20 20M9.172 14.828L4 20"/></svg>
+        <p>No tickets match your filters.</p>
+        <button class="btn-ghost" onclick="clearFilters()">Clear filters</button>
+      </div>
+    </section>
+
+    <!-- ===================== VIEW: NEW TICKET ===================== -->
+    <section class="view" id="view-new">
+      <div class="form-container">
+        <div class="form-card">
+          <div class="form-card-header">
+            <h2>Submit New Support Ticket</h2>
+            <p>All fields are required. SLA timers begin at submission.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="custName">Customer Name</label>
+              <input type="text" id="custName" placeholder="e.g. Rahul Mehta" />
+              <span class="form-error" id="errName"></span>
+            </div>
+            <div class="form-group">
+              <label for="issueType">Issue Type</label>
+              <select id="issueType">
+                <option value="">— Select —</option>
+                <option value="Billing">Billing</option>
+                <option value="Technical">Technical</option>
+                <option value="General">General</option>
+              </select>
+              <span class="form-error" id="errType"></span>
+            </div>
+            <div class="form-group">
+              <label for="priority">Priority</label>
+              <div class="priority-selector">
+                <label class="pri-opt"><input type="radio" name="priority" value="Low" /><span class="pri-chip low">Low</span></label>
+                <label class="pri-opt"><input type="radio" name="priority" value="Medium" checked /><span class="pri-chip medium">Medium</span></label>
+                <label class="pri-opt"><input type="radio" name="priority" value="High" /><span class="pri-chip high">High</span></label>
+              </div>
+              <span class="form-error" id="errPriority"></span>
+            </div>
+            <div class="form-group full-width">
+              <label for="description">Description</label>
+              <textarea id="description" rows="4" placeholder="Describe the issue in detail…"></textarea>
+              <span class="form-error" id="errDesc"></span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-secondary" onclick="resetForm()">Clear</button>
+            <button class="btn-primary" onclick="submitTicket()">Submit Ticket →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODAL: Update Ticket ===== -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitle">Update Ticket</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
