@@ -167,8 +167,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## 👤 Author
 
 **Your Name**
-- GitHub: [@your-username](https://github.com/your-username)
-- LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)
+- LinkedIn: [your-linkedin](https://www.linkedin.com/in/pranjali-rajguru19)
 
 ---
 
